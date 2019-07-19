@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Welcome to Portfolio</h1>
+  <h3>Please register to begin investing.</h3>
+
+  <div>
+    <form method="POST" action="{{url_for('register')}}">
+        {{form.csrf_token}}
+        {{ form.name.label }}<br>
+        {{ form.name }}<br>
+        {% for error in form.name.errors %}
+            <li style="color:red;"> {{error}}</li>
+        {%endfor%}
+
+        {{ form.email.label }}<br> 
+        {{ form.email }}<br>
+        {% for error in form.email.errors %}
+            <li style="color:red;"> {{error}}</li>
+        {%endfor%}
+
+        {{ form.passphrase.label }}<br>
+        {{ form.passphrase }}<br>
+        {% for error in form.passphrase.errors %}
+            <li style="color:red;"> {{error}}</li>
+        {%endfor%}
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul>
+              {% for message in messages %}
+                <li> {{message}} </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+      <p><input type="submit" value="Register" class=""></p>
+    </form>
+  </div>
+    <p><em>Already registered?</em> Click <a href="{{url_for('login')}}">here</a> to login.</p>
+{% endblock %}
