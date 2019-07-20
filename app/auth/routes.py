@@ -60,7 +60,3 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
-@auth_bp.route('/portfolio', methods=['GET'])
-@login_required
-def portfolio():
-    return "Hi, Please see your portfolio below."
