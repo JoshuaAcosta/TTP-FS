@@ -9,3 +9,12 @@ class RegisterForm(FlaskForm):
                     Email(message="Please submit a valid email.")])
     passphrase = PasswordField('Passphrase: ', validators = [InputRequired("A Passphrase is required."),
                     Length(min=16, message="Your passphrase must have a minimum of 16 characters.")])
+
+class LoginForm(FlaskForm):
+    email= StringField('Email: ', 
+                    validators = [InputRequired("An email address is required"), 
+                    Email(message="Please submit a valid email.")])
+    passphrase = PasswordField('Passphrase: ', validators = [InputRequired("A Passphrase is required."),
+                    Length(min=16, message="Your passphrase must have a minimum of 16 characters.")])
+
+        
