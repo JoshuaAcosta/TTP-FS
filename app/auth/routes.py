@@ -7,7 +7,7 @@ from .forms import RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import auth_bp
 
-@auth_bp.route('/', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm(request.form)
     if request.method == 'POST':
