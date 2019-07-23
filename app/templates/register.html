@@ -1,41 +1,63 @@
 {% extends "base.html" %}
+{%block title%} <title>Register to Piggybank</title> {%endblock%}
+
 {% block content %}
-  <h1>Welcome to Portfolio</h1>
-  <h3>Please register to begin investing.</h3>
+<div class="container col-md-4 mt-5">
+  <div class="card mt-5 align-items-center text-center bg-light">
+    <div class="card-body">
+      <form class="text-center p-3" method="POST" action="{{url_for('auth.register')}}">
+          {{form.csrf_token}}
+          <div class="text-center">
+              <img class="pb-3" src="static/img/piggybank_logo.png" style="width: 30%" alt="">
+              <h3 > Register to begin investing</h3><br>
+          </div>
+          
+          <div class="md-form"> 
+           <input id="first_name" name="first_name" class="form-control" required type="text" value="" placeholder="First name"><br>
+          </div>
+          
+          <div class="md-form">
+            <input id="last_name" name="last_name" class="form-control" required type="text" value="" placeholder="Last name"><br>
+          </div>
+          
+          <div class="md-form">
+            <input id="email" name="email" class="form-control" required type="text" value="" placeholder="Email"><br>
+          </div>
 
-  <div>
-    <form method="POST" action="{{url_for('auth.register')}}">
-        {{form.csrf_token}}
-        {{ form.name.label }}<br>
-        {{ form.name }}<br>
-        {% for error in form.name.errors %}
-            <li style="color:red;"> {{error}}</li>
-        {%endfor%}
-
-        {{ form.email.label }}<br> 
-        {{ form.email }}<br>
-        {% for error in form.email.errors %}
-            <li style="color:red;"> {{error}}</li>
-        {%endfor%}
-
-        {{ form.passphrase.label }}<br>
-        {{ form.passphrase }}<br>
-        {% for error in form.passphrase.errors %}
-            <li style="color:red;"> {{error}}</li>
-        {%endfor%}
+          {% for error in form.email.errors %}
+          <div class="alert alert-warning" role="alert">
+          {{error}}
+          </div>
+          {%endfor%}
+        
+          <div class="md-form">
+            <input id="passphrase" name="passphrase" class="form-control" required type="password" value="" placeholder="Passphrase">
+            <small class="form-text text-left text-muted">Your passphrase should be a minimum of 16 characters long.</small>
+          </div>
+          
+          {% for error in form.passphrase.errors %}
+          <div class="alert alert-warning" role="alert">
+          {{error}}
+          </div>
+          {%endfor%}
 
         {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <ul>
-              {% for message in messages %}
-                <li> {{message}} </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning" role="alert">
+              {{message}}
+            </div>
+            {% endfor %}
+        {% endif %}
         {% endwith %}
-
-      <p><input type="submit" value="Register" class=""></p>
-    </form>
+      
+          <input class="btn btn-success btn-lg" type="submit" value="Register">
+        
+        <div class="md-form mt-3">
+          <p> Have an account? <a href="{{url_for('auth.login')}}">Sign In</a></p>
+        </div>
+      </form>
+    </div>
   </div>
-    <p><em>Already registered?</em> Click <a href="{{url_for('auth.login')}}">here</a> to login.</p>
+</div>
 {% endblock %}
