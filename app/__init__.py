@@ -4,6 +4,7 @@ from flask_login import LoginManager
 
 db = SQLAlchemy()
 
+
 def create_app():
 
     app = Flask(__name__)
@@ -14,7 +15,7 @@ def create_app():
         app.config.from_object("config.TestingConfig")
     else:
         app.config.from_object("config.DevelopmentConfig")
-    
+
     db.init_app(app)
 
     login_manager = LoginManager()

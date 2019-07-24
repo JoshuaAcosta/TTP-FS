@@ -1,8 +1,10 @@
 {% extends "base.html" %}
-{%block link%} <link rel="stylesheet" href="static/css/mainpage_styles.css"> {%endblock%}
+{%block link%}
+<link rel="stylesheet" href="static/css/mainpage_styles.css"> {%endblock%}
 {%block title%} <title>Welcome to Piggybank!</title> {%endblock%}
 {% block content %}
-    <div class="view" style='background-image: url("static/img/piggybank_background.jpg") ; background-repeat: no-repeat; background-size: cover; background-position: center center;''> 
+<div class="view"
+    style='background-image: url("static/img/piggybank_background.jpg") ; background-repeat: no-repeat; background-size: cover; background-position: center center;''> 
         <div class="container">
             <div class="row col-6 pt-5">
                 <div class="mt-xl-5 mb-5" >
@@ -11,12 +13,12 @@
                 <h6 class="mb-4">
                     Piggybank allows your to purchase stocks and track your investments. <br>
                     Create an account by registering below to begin investing.  <br>
-                    If you're an existing user, please login below.
-                </h6>
-                <a href="{{url_for('auth.register')}}" class="btn btn-success btn-lg" role="button">Register</a>
+                    If you' re an existing user, please login below. 
+                </h6> 
+                <a href="{{url_for('auth.register')}}"class="btn btn-success btn-lg" role="button">Register</a>
                 <a href="{{url_for('auth.login')}}" class="btn btn-outline-success btn-lg" role="button">Login</a>
-                </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

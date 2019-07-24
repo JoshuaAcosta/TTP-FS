@@ -11,6 +11,9 @@ flask-sqlalchemy = "*"
 psycopg2 = "~=2.7.5"
 flask-wtf = "*"
 flask-login = "*"
+pylint = "*"
+flake8 = "*"
+pylint-flask = "*"
 
 [requires]
 python_version = "3.6"

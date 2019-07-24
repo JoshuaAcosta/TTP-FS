@@ -1,14 +1,20 @@
-from app import db
+""" Authorization routes """
 from flask import render_template, url_for, redirect, request, flash
-from flask import current_app as app
-from app.models import User
 from flask_login import login_user, logout_user, login_required
-from .forms import RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
+from app import db
+from app.models import User
+from .forms import RegisterForm, LoginForm
 from . import auth_bp
+
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Renders registration page. If form
+    validates on submission and user email
+    doesn't exist in the database, new user is created.
+    """
     form = RegisterForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -16,7 +22,7 @@ def register():
             last_name = request.form.get('last_name')
             email = request.form.get('email').lower()
             passphrase = request.form.get('passphrase')
-            
+
             existing_user = User.query.filter_by(email=email).first()
 
             if existing_user is None:
@@ -24,21 +30,29 @@ def register():
                     first_name=first_name,
                     last_name=last_name,
                     email=email,
-                    passphrase=generate_password_hash(passphrase, method='sha256'),
+                    passphrase=generate_password_hash(passphrase,
+                                                      method='sha256'),
                     balance=5000.00
                     )
                 db.session.add(new_user)
                 db.session.commit()
                 login_user(new_user)
                 return redirect(url_for('main.portfolio'))
+
             else:
                 flash('An account for this email address already exists.')
                 return redirect(url_for('auth.register'))
 
     return render_template('register.html', form=form)
 
-@auth_bp.route('/login', methods=['GET','POST'])
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Renders login page. If form
+    validates on submission and user
+    exists in the database, user is logged in.
+    """
     form = LoginForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -47,7 +61,7 @@ def login():
 
             user = User.query.filter_by(email=email).first()
 
-            if user and check_password_hash(user.passphrase, passphrase): 
+            if user and check_password_hash(user.passphrase, passphrase):
                 login_user(user)
                 return redirect(url_for('main.portfolio'))
             else:
@@ -56,8 +70,13 @@ def login():
 
     return render_template('login.html', form=form)
 
+
 @auth_bp.route('/logout')
 @login_required
 def logout():
+    """
+    Logs current user out and redirects
+    to login page.
+    """
     logout_user()
     return redirect(url_for('auth.login'))

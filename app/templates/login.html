@@ -6,42 +6,43 @@
   <div class="card mt-5 align-items-center text-center bg-light">
     <div class="card-body">
       <form class="text-center p-5" method="POST" action="{{url_for('auth.login')}}">
-          {{form.csrf_token}}
+        {{form.csrf_token}}
 
-          <div class="text-center">
-              <img class="pb-2" src="static/img/piggybank_logo.png" style="width: 30%" alt="">
-              <h3> Login to view portfolio</h3><br>
-          </div>
+        <div class="text-center">
+          <img class="pb-2" src="static/img/piggybank_logo.png" style="width: 30%" alt="">
+          <h3> Login to view portfolio</h3><br>
+        </div>
 
-          <div class="md-form">
-              <input id="email" name="email" class="form-control" required type="text" placeholder="Email" value=""><br>
-          </div>
+        <div class="md-form">
+          <input id="email" name="email" class="form-control" required type="text" placeholder="Email" value=""><br>
+        </div>
 
-          {% for error in form.email.errors %}
-          <div class="alert alert-warning" role="alert">
+        {% for error in form.email.errors %}
+        <div class="alert alert-warning" role="alert">
           {{error}}
-          </div>
-          {%endfor%}
+        </div>
+        {%endfor%}
 
-          <div class="md-form">
-            <input id="passphrase" name="passphrase" class="form-control" required type="text" placeholder="Passphrase" placeholder="Email" value=""><br>
-          </div>
+        <div class="md-form">
+          <input id="passphrase" name="passphrase" class="form-control" required type="text" placeholder="Passphrase"
+            placeholder="Email" value=""><br>
+        </div>
 
-          {% for error in form.passphrase.errors %}
-          <div class="alert alert-warning" role="alert">
+        {% for error in form.passphrase.errors %}
+        <div class="alert alert-warning" role="alert">
           {{error}}
-          </div>
-          {%endfor%}
+        </div>
+        {%endfor%}
 
-          {% with messages = get_flashed_messages() %}
-            {% if messages %}
-              {% for message in messages %}
-              <div class="alert alert-warning" role="alert">
-                {{message}}
-              </div>
-              {% endfor %}
-            {% endif %}
-          {% endwith %}
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-warning" role="alert">
+          {{message}}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
 
         <input class="btn btn-success btn-lg" type="submit" value="Log In">
 
