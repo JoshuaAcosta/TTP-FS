@@ -1,7 +1,9 @@
+"""Config file passed to app """
 import os
 
 
 class Config(object):
+    "Base config class"
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -10,12 +12,15 @@ class Config(object):
 
 
 class ProductionConfig(Config):
+    "Production config class"
     pass
 
 
 class DevelopmentConfig(Config):
+    "Development config class"
     DEBUG = True
 
 
 class TestingConfig(Config):
+    "Testing config class"
     TESTING = True
