@@ -6,6 +6,9 @@ from wtforms.validators import InputRequired, Length, Email, Regexp
 
 class RegisterForm(FlaskForm):
     """Registration form with email and strong password validators """
+
+    special_chars = r"(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!\"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~])"
+
     first_name = StringField(
         'First name: ', validators=[
             InputRequired('Please provide your first name.')])
@@ -22,11 +25,11 @@ class RegisterForm(FlaskForm):
                     InputRequired("A Passphrase is required."),
                     Length(min=16, message="Your passphrase must\
                                             have a minimum of 16 characters."),
-                    Regexp(regex="(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])\
-                                    (?=.*?[!\"#$%&'()*+,-./:;<=>?@[]^_`{|}~])",
-                           message="Your passphrase must contain atleast one uppercase\
-                                           letter, one lowercase letter, one\
-                                           number and a special character.")])
+                    Regexp(
+                        regex=special_chars,
+                        message="Your passphrase must contain atleast one uppercase\
+                                letter, one lowercase letter, one\
+                                number and a special character.")])
 
 
 class LoginForm(FlaskForm):
