@@ -3,7 +3,7 @@ from flask import render_template, url_for, redirect, request, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from app.models import User
+from app.models import User, Balance
 from .forms import RegisterForm, LoginForm
 from . import auth_bp
 
@@ -31,10 +31,13 @@ def register():
                     last_name=last_name,
                     email=email,
                     passphrase=generate_password_hash(passphrase,
-                                                      method='sha256'),
-                    balance=5000.00
+                                                      method='sha256')
                     )
                 db.session.add(new_user)
+                db.session.commit()
+                new_user_id = new_user.get_user_id()
+                new_balance = Balance(user_id=new_user_id, balance=5000.00)
+                db.session.add(new_balance)
                 db.session.commit()
                 login_user(new_user)
                 return redirect(url_for('main.portfolio'))
