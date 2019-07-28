@@ -1,6 +1,7 @@
 """Database models"""
 from flask_login import UserMixin
-from app import db
+from app import db, login_manager
+
 
 class User(UserMixin, db.Model):
     """table listing users and their log in information """
@@ -14,11 +15,15 @@ class User(UserMixin, db.Model):
     transactions = db.relationship('Transaction', backref='user', lazy=True)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r>' % self.first_name
 
     def get_user_id(self):
         """ Returns user's id"""
         return self.id
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 class Transaction(db.Model):
@@ -27,12 +32,12 @@ class Transaction(db.Model):
 
     transaction_id = db.Column(db.Integer, primary_key=True)
     stock_symbol = db.Column(db.String(5), nullable=False)
-    quantity = db.Column(db.Integer(), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
     date_purchased = db.Column(db.DateTime(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r>' % self.user_id
 
 
 class Balance(db.Model):
@@ -40,7 +45,7 @@ class Balance(db.Model):
     __tablename__ = "balances"
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    balance = db.Column(db.Float(), nullable=False)
+    balance = db.Column(db.Numeric, nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r>' % self.user_id
