@@ -14,7 +14,8 @@ flask-login = "*"
 pylint = "*"
 flake8 = "*"
 pylint-flask = "*"
-flask-restplus = "*"
+flask-restful = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.6"

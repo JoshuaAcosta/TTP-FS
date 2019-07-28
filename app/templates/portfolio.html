@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{%block title%} <title>Your Piggybank Portfolio</title> {%endblock%}
+{%block scripts%}
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios@0.19.0/dist/axios.min.js"></script>
+{%endblock%}
+
+{% block content %}
+
+<nav>
+    <div class="nav-links d-flex justify-content-end">
+        <a href="{{url_for('main.portfolio')}}">Portolio</a> |
+        <a href="{{url_for('main.transaction')}}">Transactions</a> |
+        <a href="{{url_for('auth.logout')}}">Logout</a>
+    </div>
+</nav>
+    
+<div class="pt-5">
+    <h2>Welcome {{name}}!</h2> 
+</div>
+<div class="row pt-5">
+    <div class="col-6 border-right">
+        <p>Your current porfolio below: </p>
+    </div>
+    <div class="col-6 border-left align-items-center text-center">
+        <div id="balance">
+            <h4>Current Cash Balance: $[[ balance ]]</h4>
+        </div>
+        <div class="md-form"> 
+        <input id="symbol" name="email" class="form-control" required type="text" placeholder="Stock symbol" value=""><br>
+        </div>
+        <input id="amount" name="amount" class="form-control" required type="text" placeholder="Quantity" value=""><br>
+        <input class="btn btn-success btn-lg" type="submit" value="Purchase">
+                  
+    </div>
+</div>
+
+<script>
+var app = new Vue({
+    delimiters : ['[[',']]'],
+    el: '#balance',
+    data: () => {
+      return {
+         balance: null
+      }},
+    mounted () {
+        axios
+        .get('http://localhost:5000/api/balance/me')
+        .then(response => (this.balance= response.data))
+  }}
+  )
+</script>
+
+{% endblock %}
