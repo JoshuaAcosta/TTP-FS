@@ -21,4 +21,4 @@ def portfolio():
 @login_required
 def transaction():
     """ Renders page to view list of transactions """
-    return "Hi, Please see your transactions below."
+    return render_template('transaction.html')
