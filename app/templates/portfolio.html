@@ -40,18 +40,33 @@
         </div>
     </div>
     <div class="row pt-5">
-        <div class="col-6 border-right">
-            <h4>Your current porfolio below: </h4>
+        <div class="col-6 border-right align-items-center text-center">
+            <div>
+                <h4>Portfolio value: $ </h4>
+            </div>
         </div>
         <div class="col-6 border-left align-items-center text-center">
             <div id="balance">
                 <h4>Current Cash Balance: $[[ balance ]]</h4>
             </div>
-            <form class="md-form mx-5 px-5"> 
-            <input id="symbol" name="email" class="form-control" required type="text" placeholder="Stock symbol" value=""><br>
-            <input id="amount" name="amount" class="form-control" required type="text" placeholder="Quantity" value=""><br>
-            <input class="btn btn-success btn-lg" type="submit" value="Purchase">   
-            </form>   
+            <div id="purchase">
+                <form  class="md-form mx-5 px-5"> 
+                        <div v-if="errors.length" class="alert alert-warning" role="alert">
+                        <b>Please correct the following error(s):</b>
+                        <ul>
+                            <li v-for="error in errors">[[error]] </li>
+                        </ul>
+                        </div>
+
+                    <input id="symbol" v-model="stockSymbol" @change="validateSymbol" name="stock_symbol" class="form-control" required type="text" placeholder="Stock symbol" value=""><br>
+                    <input id="amount" v-model="quantity" @change="validateQuantity" name="amount" class="form-control" placeholder="Quantity" value=""><br>
+                    <p>Current ask price: $ [[askPrice]]</p>
+                    <p>X</p>
+                    <p>Quantity: [[quantity]]</p>
+                    <p>Total Purchase Amount: $ [[totalAmount]] </p>
+                    <input v-on:click="validatePurchase" class="btn btn-success btn-lg" type="button" value="Purchase">   
+                </form>   
+            </div>
         </div>
     </div>
 </div>
@@ -61,14 +76,112 @@ var vm1 = new Vue({
     el: '#balance',
     data: () => {
       return {
-         balance: null
+         balance: null,
       }},
     mounted () {
         axios
         .get('http://localhost:5000/api/balance/me')
-        .then(response => (this.balance = response.data))
+        .then(response => (this.balance = response.data.balance.toFixed(2)))
   }}
-  )
-</script>
+  );
 
+var vm2 = new Vue({
+delimiters : ['[[',']]'],
+el: '#purchase',
+data: () => {
+    return {
+    stockSymbol: null,
+    validSymbol: false,
+    askPrice: null,
+    quantity: null,
+    totalAmount: null,
+    eligibleSymbols: null,
+    validInteger: false,
+    errors: []
+    }},
+
+mounted () {
+    axios
+        .get('https://api.iextrading.com/1.0/ref-data/symbols')
+        .then(response => (this.eligibleSymbols = response.data))
+},
+
+methods: {
+    validateSymbol:function(event) {
+        this.errors = [];
+        this.validSymbol = false;
+        this.askPrice = null;
+        this.totalAmount = null;
+        this.quantity = null;
+
+        for (var i=0; i<this.eligibleSymbols.length; i++ ){
+            if (this.eligibleSymbols[i].symbol == this.stockSymbol.toUpperCase()){
+                this.validSymbol = true;
+            } 
+        }
+        
+        if (this.validSymbol == false){
+            this.errors.push("Please submit a valid symbol.")
+        } else {
+        var baseURL = 'https://api.iextrading.com/1.0/tops?symbols='
+        axios
+        .get(baseURL.concat(this.stockSymbol.toUpperCase()))
+        .then(response => (this.askPrice = response.data[0].askPrice.toFixed(2)))
+        }
+        event.preventDefault();
+
+    },
+    validateQuantity:function(event){
+        this.errors = [];
+        this.totalAmount = null;
+        this.validInteger = Number.isInteger(+this.quantity);
+
+        if (this.validInteger==true){
+            this.totalAmount = this.askPrice * this.quantity;
+            this.totalAmount = this.totalAmount.toFixed(2);
+
+        } 
+        if (this.validInteger==false){
+            this.errors.push("Please submit a whole number of shares to purchase.");
+        }
+
+    },
+    validatePurchase:function(event){
+        this.errors = [];
+        var purchaseValid = false;
+
+        if (parseFloat(vm1.balance) < parseFloat(this.totalAmount)){
+            this.errors.push("Your total purchase amount is more than your current balance.");
+        } else{
+            purchaseValid = true;
+        }
+
+        if (purchaseValid){
+    
+            axios({
+                method: 'POST',
+                url: 'http://localhost:5000/api/transaction/me',
+                data:{
+                    "stock_symbol" : this.stockSymbol,
+                    "quantity" : this.quantity,
+                    "date_purchased" : new Date()
+                }
+            })
+
+            vm1.balance = (parseFloat(vm1.balance) - parseFloat(this.totalAmount))
+
+            axios({
+                method: 'PUT',
+                url: 'http://localhost:5000/api/balance/me',
+                data:{
+                    "new_balance" : vm1.balance.toFixed(2)
+                }
+            })
+
+            window.location.reload(true); 
+        } 
+    }
+}
+});
+</script>
 {% endblock %}
