@@ -1,11 +1,11 @@
 """API """
-from flask_restful import Resource, fields, marshal, marshal_with
+from flask_restful import Resource, fields, marshal
 from flask_login import current_user
 from flask import request
+import requests
 from app.models import Balance, Transaction
 from app import db
-from sqlalchemy.sql import text
-import requests
+
 
 
 get_balance_fields = {
@@ -38,11 +38,12 @@ class BalanceResources(Resource):
         """Returns current balance for user"""
         if current_user.is_authenticated:
             id_num = current_user.get_id()
-            return  marshal(Balance.query.filter_by(user_id=id_num).first(), get_balance_fields), 200
-            
+            return  marshal(Balance.query.filter_by(user_id=id_num).first(),
+                            get_balance_fields), 200
+
         else:
             response = {'response':'Unauthenticated. Please log in'}
-            return marshal(response , get_401_fields), 401
+            return marshal(response, get_401_fields), 401
 
     def put(self):
         """Updates current user's balance"""
@@ -56,7 +57,7 @@ class BalanceResources(Resource):
             return {"result":"success"}
         else:
             response = {'response':'Unauthenticated. Please log in'}
-            return marshal(response , get_401_field), 401
+            return marshal(response, get_401_fields), 401
 
 
 class TransactionResources(Resource):
@@ -65,11 +66,12 @@ class TransactionResources(Resource):
         """Returns all transactions for user"""
         if current_user.is_authenticated:
             id_num = current_user.get_id()
-            return  marshal(Transaction.query.filter_by(user_id=id_num).all(), get_transaction_fields), 200
+            return  marshal(Transaction.query.filter_by(user_id=id_num).all(),
+                            get_transaction_fields), 200
         else:
             response = {'response':'Unauthenticated. Please log in'}
-            return marshal(response , get_401_fields), 401
-            
+            return marshal(response, get_401_fields), 401
+
 
     def post(self):
         """Post new transaction completed into db, returns successful status"""
@@ -93,7 +95,7 @@ class TransactionResources(Resource):
             return {"result":"success"}
         else:
             response = {'response':'Unauthenticated. Please log in'}
-            return marshal(response , get_401_field), 401
+            return marshal(response, get_401_fields), 401
 
 class PortfolioResources(Resource):
     """HTTP API methods getting a user's stock symbols owned and quantity for each"""
@@ -104,8 +106,8 @@ class PortfolioResources(Resource):
             text = "SELECT stock_symbol, SUM(quantity) as quantity FROM transactions \
                     WHERE user_id=:user_id GROUP BY stock_symbol"
             result = db.session.execute(text, {"user_id":id_num})
-            portfolio_list = [{column: value for column, value in rowproxy.items()} 
-                                for rowproxy in result]
+            portfolio_list = [{column: value for column, value in rowproxy.items()}
+                              for rowproxy in result]
 
             symbols_list = []
             symbols_string = ","
@@ -117,15 +119,16 @@ class PortfolioResources(Resource):
                 symbols_string.join(symbols_list)
 
             response = requests.get(last_price_symbols).json()
-            
-            new_list = []
-            for p, r in zip(portfolio_list, response):
-                new_list.append({"stock_symbol":p['stock_symbol'], "quantity":p['quantity'], 
-                                "current_value":round(r['price']*p['quantity'], 2) })
-        
-            return marshal(new_list, get_portfolio_fields), 200
 
+            new_list = []
+            for portfolio_list, resp in zip(portfolio_list, response):
+                new_list.append({"stock_symbol":portfolio_list['stock_symbol'],
+                                 "quantity":portfolio_list['quantity'],
+                                 "current_value":
+                                 round(resp['price']*portfolio_list['quantity'], 2)})
+
+            return marshal(new_list, get_portfolio_fields), 200
         else:
             response = {'response':'Unauthenticated. Please log in'}
-            return marshal(response , get_401_fields), 401
+            return marshal(response, get_401_fields), 401
             

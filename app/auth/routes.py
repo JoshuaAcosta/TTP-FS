@@ -36,7 +36,7 @@ def register():
                 db.session.add(new_user)
                 db.session.commit()
                 new_user_id = new_user.get_user_id()
-                new_balance = Balance(user_id=new_user_id, balance=format(5000.00,'.2f'))
+                new_balance = Balance(user_id=new_user_id, balance=format(5000.00, '.2f'))
                 db.session.add(new_balance)
                 db.session.commit()
                 login_user(new_user)
