@@ -17,15 +17,13 @@
              </button>
 
             <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{url_for('main.portfolio')}}">Portolio</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{url_for('main.transaction')}}">Transactions</a>
                     </li>
-                </ul>
-                <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{url_for('auth.logout')}}">Logout</a>
                     </li>
@@ -41,32 +39,51 @@
     </div>
     <div class="row pt-5">
         <div class="col-6 border-right align-items-center text-center">
-            <div>
-                <h4>Portfolio value: $ </h4>
-            </div>
-        </div>
-        <div class="col-6 border-left align-items-center text-center">
-            <div id="balance">
-                <h4>Current Cash Balance: $[[ balance ]]</h4>
-            </div>
-            <div id="purchase">
-                <form  class="md-form mx-5 px-5"> 
-                        <div v-if="errors.length" class="alert alert-warning" role="alert">
-                        <b>Please correct the following error(s):</b>
-                        <ul>
-                            <li v-for="error in errors">[[error]] </li>
-                        </ul>
-                        </div>
+            <div id="transaction">
+                <h4>Portfolio value: $[[portfolioValue]] [[calculateValue()]] </h4>
 
-                    <input id="symbol" v-model="stockSymbol" @change="validateSymbol" name="stock_symbol" class="form-control" required type="text" placeholder="Stock symbol" value=""><br>
-                    <input id="amount" v-model="quantity" @change="validateQuantity" name="amount" class="form-control" placeholder="Quantity" value=""><br>
-                    <p>Current ask price: $ [[askPrice]]</p>
-                    <p>X</p>
-                    <p>Quantity: [[quantity]]</p>
-                    <p>Total Purchase Amount: $ [[totalAmount]] </p>
-                    <input v-on:click="validatePurchase" class="btn btn-success btn-lg" type="button" value="Purchase">   
-                </form>   
+            <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                        <th scope="col">Symbol</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Current Value ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="stock in portfolio"> 
+                            <td>[[stock.stock_symbol]]</td>
+                            <td>[[stock.quantity]]</td>
+                            <td>[[stock.current_value]]</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
+        </div>
+
+        <div class="col-6 border-left align-items-center text-center">
+        <div id="balance">
+            <h4>Current Cash Balance: $[[ balance ]]</h4>
+        </div>
+        <div id="purchase">
+            <form  class="md-form mx-5 px-5"> 
+                    <div v-if="errors.length" class="alert alert-warning" role="alert">
+                    <b>Please correct the following error(s):</b>
+                    <ul>
+                        <li v-for="error in errors">[[error]] </li>
+                    </ul>
+                    </div>
+
+                <input id="symbol" v-model="stockSymbol" @change="validateSymbol" name="stock_symbol" class="form-control" required type="text" placeholder="Stock symbol" value=""><br>
+                <input id="amount" v-model="quantity" @change="validateQuantity" name="amount" class="form-control" placeholder="Quantity" value=""><br>
+                <p>Current ask price: $ [[askPrice]]</p>
+                <p>X</p>
+                <p>Quantity: [[quantity]]</p>
+                <p>Total Purchase Amount: $ [[totalAmount]] </p>
+                <input v-on:click="validatePurchase" class="btn btn-success btn-lg" type="button" value="Purchase">   
+            </form>   
+        </div>
         </div>
     </div>
 </div>
@@ -152,6 +169,8 @@ methods: {
 
         if (parseFloat(vm1.balance) < parseFloat(this.totalAmount)){
             this.errors.push("Your total purchase amount is more than your current balance.");
+        } else if (this.askPrice == 0.00){
+            this.errors.push("Can't purchase stock trading with an ask price of zero dollars.")
         } else{
             purchaseValid = true;
         }
@@ -162,7 +181,7 @@ methods: {
                 method: 'POST',
                 url: 'http://localhost:5000/api/transaction/me',
                 data:{
-                    "stock_symbol" : this.stockSymbol,
+                    "stock_symbol" : this.stockSymbol.toUpperCase(),
                     "quantity" : this.quantity,
                     "date_purchased" : new Date()
                 }
@@ -181,6 +200,33 @@ methods: {
             window.location.reload(true); 
         } 
     }
+}
+});
+
+var vm3 = new Vue({
+delimiters : ['[[',']]'],
+el: '#transaction',
+data: () => {
+    return {
+    portfolioValue: 0.00,
+    portfolio: null,
+    }},
+
+created () {
+    axios
+        .get("http://localhost:5000/api/portfolio/me")
+        .then(response => (this.portfolio = response.data)); 
+},
+
+methods: {
+    calculateValue:function(){
+        let amt = 0.00;
+        for (var i=0; i < this.portfolio.length; i++){
+            amt += this.portfolio[i].current_value
+        }
+        this.portfolioValue = amt.toFixed(2);
+    }
+
 }
 });
 </script>

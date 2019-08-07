@@ -4,6 +4,8 @@ from flask_login import current_user
 from flask import request
 from app.models import Balance, Transaction
 from app import db
+from sqlalchemy.sql import text
+import requests
 
 
 get_balance_fields = {
@@ -17,6 +19,12 @@ get_transaction_fields = {
     "quantity": fields.Integer,
     "date_purchased": fields.DateTime,
     "user_id": fields.Integer
+}
+
+get_portfolio_fields = {
+    "stock_symbol": fields.String,
+    "quantity": fields.Integer,
+    "current_value": fields.Float
 }
 
 
@@ -70,3 +78,35 @@ class TransactionResources(Resource):
             db.session.commit()
 
             return {"result":"success"}
+
+class PortfolioResources(Resource):
+    """HTTP API methods getting a user's stock symbols owned and quantity for each"""
+    @marshal_with(get_portfolio_fields)
+    def get(self):
+        """Returns current balance for user"""
+        if current_user.is_authenticated:
+            id_num = current_user.get_id()
+            text = "SELECT stock_symbol, SUM(quantity) as quantity FROM transactions \
+                    WHERE user_id=:user_id GROUP BY stock_symbol"
+            result = db.session.execute(text, {"user_id":id_num})
+            portfolio_list = [{column: value for column, value in rowproxy.items()} 
+                                for rowproxy in result]
+
+            symbols_list = []
+            symbols_string = ","
+
+            for row in portfolio_list:
+                symbols_list.append(row["stock_symbol"])
+
+            last_price_symbols = "https://api.iextrading.com/1.0/tops/last?symbols=" + \
+                symbols_string.join(symbols_list)
+
+            response = requests.get(last_price_symbols).json()
+            
+            new_list = []
+            for p, r in zip(portfolio_list, response):
+                new_list.append({"stock_symbol":p['stock_symbol'], "quantity":p['quantity'], 
+                                "current_value":round(r['price']*p['quantity'], 2) })
+            
+            return new_list
+            
