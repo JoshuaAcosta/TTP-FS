@@ -17,6 +17,7 @@ pylint-flask = "*"
 flask-restful = "*"
 flask-cors = "*"
 requests = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.6"

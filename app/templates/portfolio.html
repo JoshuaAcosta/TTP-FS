@@ -54,7 +54,7 @@
                         <tr v-for="stock in portfolio"> 
                             <td>[[stock.stock_symbol]]</td>
                             <td>[[stock.quantity]]</td>
-                            <td>[[stock.current_value]]</td>
+                            <td>[[stock.current_value.toFixed(2)]]</td>
                         </tr>
                     </tbody>
                 </table>
