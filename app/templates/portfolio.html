@@ -169,6 +169,8 @@ methods: {
 
         if (parseFloat(vm1.balance) < parseFloat(this.totalAmount)){
             this.errors.push("Your total purchase amount is more than your current balance.");
+        } else if (this.stockSymbol == null){
+            this.errors.push("Please select a stock symbol.")
         } else if (this.askPrice <=0.00){
             this.errors.push("Can't purchase stock trading with an ask price of zero dollars. Please enter a valid stock symbol and quantity.")
         } else if (this.quantity <= 0.00){
